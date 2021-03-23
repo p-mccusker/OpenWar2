@@ -4,13 +4,17 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <bitset>
 
-using u_byte = unsigned char;
-using word = short;
+//using u_byte = unsigned char;
+using word = std::bitset<16>;
+using std::byte;
 
 //Section Headers
 const std::vector<std::string> HEADERS = {  "TYPE", "VER ", "DESC", "OWNR", "ERA ", "ERAX", "DIM ", "UDTA", "ALOW", "UGRD", "SIDE",
 											"SGLD", "SLBR", "SOIL", "AIPL", "MTXM", "SQM ", "OILM", "REGM", "UNIT" };
+
+enum VER_ { HEROES_NO = 0x11, HEROES_YES = 0x13 };
 
 enum OWNR { PASSIVE_COMP_PLAYER = 0x02, NO_PLAYER = 0x03, COMP_PLAYER = 0x04, HUMAN_PLAYER = 0x05, RESCUE_PASSIVE = 0x06,
 			RESCUE_ACTIVE = 0x07 };
@@ -92,7 +96,7 @@ enum SECOND_ACTION { ATTACK = 0x01, MOVE= 0x02, HARVEST = 0x03, HAUL_OIL = 0x04,
 struct Unit{
 	word x, y, mineOrWell, overlapFrames, hp, pntVal;
 					 //T/F																						  //T/F
-	u_byte type, owner, magic, bldTime, gldCost, lmbrCost, oilCost, atkRange, compReactRange, humReactRange, armor, selectable,
+	std::byte type, owner, magic, bldTime, gldCost, lmbrCost, oilCost, atkRange, compReactRange, humReactRange, armor, selectable,
 	priority, basicDmg, pierceDmg, canUpWeapons, canUpArmor, missile, decayRate, annoyFactor, secondAction, canTarget;
 
 	//"if gold mine or oil well, contains 2500 * this, otherwise 0 passive 1 active"
@@ -163,7 +167,7 @@ struct SpellsAllowed{
 struct PUD_old {
 	std::vector<Unit> units;
 	std::string fileName, desc;
-	u_byte playerSlots[16] = { 0 };
+	std::byte playerSlots[16] = { std::byte(0) };
 	int id;
 	word width, height, version, mapNum, terrain, secTypeUnused;
 	bool isDefault;

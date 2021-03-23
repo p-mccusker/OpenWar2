@@ -2,9 +2,10 @@
 
 PUD::PUD()
 {
+	_file = "";
 }
 
-PUD::PUD(const char* file)
+PUD::PUD(const std::string& file)
 {
 }
 

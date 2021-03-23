@@ -93,7 +93,7 @@ void PUDReader::Load()
 		std::cout << "Section Length: " << sectionLen << '\n';
 		std::cout << "Controllers: ";
 		for (int i = 0; i < 16; i++){
-			std::cout << _pud.playerSlots[i] << ' ';
+			std::cout << (int)_pud.playerSlots[i] << ' ';
 		}
 		std::cout << '\n';
 
@@ -254,9 +254,9 @@ void PUDReader::Load()
 			std::cout << "\nUnit: " << UnitName(i) << '\n';
 			std::cout << "Unit hexcode: " << std::hex << i << '\n';
 			std::cout << "HP: " << std::dec << _pud.units[i].hp << '\n';
-			std::cout << "Gold: " << _pud.units[i].gldCost * 10 << '\n';
-			std::cout << "Lumber: " << _pud.units[i].lmbrCost * 10 << '\n';
-			std::cout << "Oil: " << _pud.units[i].oilCost * 10 << '\n';
+			std::cout << "Gold: " << (int)_pud.units[i].gldCost * 10 << '\n';
+			std::cout << "Lumber: " << (int)_pud.units[i].lmbrCost * 10 << '\n';
+			std::cout << "Oil: " << (int)_pud.units[i].oilCost * 10 << '\n';
 		}
 
 
