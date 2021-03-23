@@ -107,6 +107,7 @@ struct PUD
 	VER_ _ver;
 	std::string _desc[32];
 	std::string _file;
+	Array<word*, 508> udtaUnused;
 	//////////
 };
 

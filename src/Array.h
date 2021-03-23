@@ -48,6 +48,9 @@ public:
 			return true;
 		return false;
 	}
+	const bool contains(const T& item) const;
+	T& get(const T& item);
+	const T& get(const T& item);
 
 	iterator begin() noexcept;
 	const_iterator begin() const noexcept;
@@ -189,6 +192,16 @@ inline const T& Array<T, size>::at(size_t indx) const
 		throw std::out_of_range("Out of range");
 
 	return &_array[indx];
+}
+
+template<typename T, size_t size>
+inline const bool Array<T, size>::contains(const T& item) const
+{
+	for (auto i = 0; i < size; i++) {
+		if (_array[i] == item)
+			return true;
+	}
+	return false;
 }
 
 template<typename T, size_t size>
