@@ -35,7 +35,7 @@ public:
 	void Load();
 
 private:
-	PUD _pud;
+	PUD_old _pud;
 
 
 };

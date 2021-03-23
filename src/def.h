@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-using byte = unsigned char;
+using u_byte = unsigned char;
 using word = short;
 
 //Section Headers
@@ -17,7 +17,7 @@ enum OWNR { PASSIVE_COMP_PLAYER = 0x02, NO_PLAYER = 0x03, COMP_PLAYER = 0x04, HU
 
 enum ERA_ { FOREST_TYPE = 0x00, WINTER_TYPE = 0x01, WASTELAND_TYPE = 0x02, SWAMP_TYPE = 0x03};
 
-enum SIDE {  };
+enum SIDE {  HUMAN = 0x00, ORC = 0x01, NEUTRAL = 0x02 };
 
 //Test for values
 enum SGLD { P1_GOLD,  P2_GOLD,  P3_GOLD, P4_GOLD, P5_GOLD, P6_GOLD, P7_GOLD, P8_GOLD, P9_GOLD, P10_GOLD, P11_GOLD, P12_GOLD,
@@ -92,7 +92,7 @@ enum SECOND_ACTION { ATTACK = 0x01, MOVE= 0x02, HARVEST = 0x03, HAUL_OIL = 0x04,
 struct Unit{
 	word x, y, mineOrWell, overlapFrames, hp, pntVal;
 					 //T/F																						  //T/F
-	byte type, owner, magic, bldTime, gldCost, lmbrCost, oilCost, atkRange, compReactRange, humReactRange, armor, selectable,
+	u_byte type, owner, magic, bldTime, gldCost, lmbrCost, oilCost, atkRange, compReactRange, humReactRange, armor, selectable,
 	priority, basicDmg, pierceDmg, canUpWeapons, canUpArmor, missile, decayRate, annoyFactor, secondAction, canTarget;
 
 	//"if gold mine or oil well, contains 2500 * this, otherwise 0 passive 1 active"
@@ -160,10 +160,10 @@ struct SpellsAllowed{
 		death_decay : 1 {0};
 };
 
-struct PUD {
+struct PUD_old {
 	std::vector<Unit> units;
 	std::string fileName, desc;
-	byte playerSlots[16] = { 0 };
+	u_byte playerSlots[16] = { 0 };
 	int id;
 	word width, height, version, mapNum, terrain, secTypeUnused;
 	bool isDefault;
