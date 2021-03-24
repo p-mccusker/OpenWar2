@@ -34,6 +34,18 @@ void bytesToType(std::string& buffer, int &startPos, T& dest){
 	startPos += sizeof(T);
 }
 
+template <typename T>
+void printHex(const T arr[], const int& start, const int& end){
+	for (int i = start; i <= end; i++){
+		std::cout << "0x" << std::setfill('0') << std::setw(2) << std::right << std::hex << (int)arr[i] << ' ';
+		//std::cout << std::hex << (int)buffer[i] << ' ';
+		if (i - start % 12 == 0) // 12 cols
+			std::cout << '\n';
+	}
+
+	std::cout << std::dec << ' ';
+}
+
 struct Type {
 	Array<byte, 2> mapNum; // 'WAR2 MAP' + 00 00
 	Array<byte, 2> unused; //Set to $0a and $ff by editor

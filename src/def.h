@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <iomanip>
 #include "Array.h"
 
 //using u_byte = unsigned char;

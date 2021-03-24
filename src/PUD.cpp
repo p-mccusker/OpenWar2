@@ -26,7 +26,7 @@ void findSectionHeaders(PUD& pud, const std::string& buffer) {
 					lastSection.size = lastSection.endPos - lastSection.startPos;
 				}
 				pud.sections.push_back(section);
-				
+
 			}
 		}
 
@@ -36,7 +36,7 @@ void findSectionHeaders(PUD& pud, const std::string& buffer) {
 		}
 		else
 			sectionLen++;
-		
+
 
 	}
 	//Get reference to last entered section and retroactivley add endPos and start
@@ -62,7 +62,7 @@ PUD::~PUD()
 
 void PUD::Load()
 {
-	std::ifstream pudFile { _file };
+	std::ifstream pudFile { _file, std::ios::binary };
 
 	if (pudFile.fail())
 		throw FILE_NOT_FOUND{};
@@ -71,7 +71,6 @@ void PUD::Load()
 	pudFile.seekg(0, pudFile.end);
 	fileLen = pudFile.tellg();
 	pudFile.seekg(0, pudFile.beg);
-
 	std::string buffer(fileLen, 0);
 	pudFile.read(&buffer[0], fileLen);
 
@@ -79,22 +78,29 @@ void PUD::Load()
 
 	findSectionHeaders(*this, buffer); //Bugged
 
+
+
 	for (auto section : sections) {
 		std::cout << "\nSection : " << section.title << '\n'
 			<< "Start Position: " << section.startPos << '\n'
 			<< "End Position: " << section.endPos << '\n'
 			<< "Size: " << section.size << '\n';
+
+		//printHex(&buffer[0], section.startPos, section.endPos);
+
+		for (int i = section.startPos; i <= section.endPos; i++){
+			if ((int)buffer[i] >= 65 && (int)buffer[i] <= 122)
+				std::cout << "["  << buffer[i] << ']';
+			else
+				std::cout << "["  << (int)buffer[i] << ']';
+			//std::cout << std::hex << (int)buffer[i] << ' ';
+			if (i - section.startPos % 12 == 0) // 12 cols
+				std::cout << '\n';
+		}
+
+		std::cout << std::dec << ' ';
+
 	}
-
-	int cnt = 0;
-	for (auto& ch : buffer) {
-		std::cout << (unsigned char)ch;
-
-		cnt++;
-		if (cnt % 24 == 0)
-			std::cout << '\n';
-	}
-
 
 }
 
