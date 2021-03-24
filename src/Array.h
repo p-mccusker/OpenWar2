@@ -43,14 +43,13 @@ public:
 	T& back();
 	T& at(size_t indx);
 	const T& at(size_t indx) const;
-	constexpr bool full() { 
+	constexpr bool full() {
 		if ((_end - _start) == _size)
 			return true;
 		return false;
 	}
+
 	const bool contains(const T& item) const;
-	T& get(const T& item);
-	const T& get(const T& item);
 
 	iterator begin() noexcept;
 	const_iterator begin() const noexcept;
@@ -82,7 +81,7 @@ public:
 private:
 	T _array[size];
 	size_t _size = size;
-	
+
 	T *_start, *_end;
 };
 

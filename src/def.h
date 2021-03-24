@@ -1,14 +1,16 @@
 #ifndef DEF_H
 #define DEF_H
-
+#pragma once
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include "Array.h"
 
 //using u_byte = unsigned char;
+using int4 = std::bitset<32>;
 using word = std::bitset<16>;
-using std::byte;
+using byte = std::bitset<8>;
 
 //Section Headers
 const std::vector<std::string> HEADERS = {  "TYPE", "VER ", "DESC", "OWNR", "ERA ", "ERAX", "DIM ", "UDTA", "ALOW", "UGRD", "SIDE",
@@ -93,20 +95,6 @@ enum UNIT_TYPE { GROUND, FLY , NAVAL };
 
 enum SECOND_ACTION { ATTACK = 0x01, MOVE= 0x02, HARVEST = 0x03, HAUL_OIL = 0x04, DEMOLISH = 0x05, SAIL = 0x06 };
 
-struct Unit{
-	word x, y, mineOrWell, overlapFrames, hp, pntVal;
-					 //T/F																						  //T/F
-	std::byte type, owner, magic, bldTime, gldCost, lmbrCost, oilCost, atkRange, compReactRange, humReactRange, armor, selectable,
-	priority, basicDmg, pierceDmg, canUpWeapons, canUpArmor, missile, decayRate, annoyFactor, secondAction, canTarget;
-
-	//"if gold mine or oil well, contains 2500 * this, otherwise 0 passive 1 active"
-	int sightRange;
-		//x then y //x then y
-	int unitSize, boxSize;
-	int flags;
-
-};
-
 struct UnitsAllowed {
 	int infantry_t1 : 1 {0}, //footman/grunt
 		peon : 1 {0}, // or peasant
@@ -164,20 +152,7 @@ struct SpellsAllowed{
 		death_decay : 1 {0};
 };
 
-struct PUD_old {
-	std::vector<Unit> units;
-	std::string fileName, desc;
-	std::byte playerSlots[16] = { std::byte(0) };
-	int id;
-	word width, height, version, mapNum, terrain, secTypeUnused;
-	bool isDefault;
-	std::vector<word> obsoleteFrameData;
-	std::vector<word> obsoleteSwampFrame;
-
-
-
-
-};
+//const std::string UnitName(const int& unit);
 
 
 

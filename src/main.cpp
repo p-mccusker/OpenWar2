@@ -1,10 +1,6 @@
-#include <iostream>
+#include "PUD.h"
 
-#include "pudreader.h"
-
-using namespace std;
-
-std::string UnitName(const int& unit){
+const std::string UnitName(const int& unit) {
 	switch(unit){
 		case INFANTRY:
 			return "Infantry";
@@ -208,12 +204,12 @@ std::string UnitName(const int& unit){
 	}
 }
 
+using namespace std;
 
 int main(int argc, char* argv[])
 {
-	PUDReader reader("/home/peter/Games/warcraft_2/alamo.pud");
+	PUD reader("/home/peter/Games/warcraft_2/alamo.pud");
 	reader.Load();
-
 
 	return 0;
 }
