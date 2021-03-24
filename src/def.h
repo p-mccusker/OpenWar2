@@ -9,10 +9,12 @@
 #include "Array.h"
 
 //using u_byte = unsigned char;
-using int4 = std::bitset<32>;
-using word = std::bitset<16>;
-using byte = std::bitset<8>;
+namespace pud {
+	using int4 = std::bitset<32>;
+	using word = std::bitset<16>;
+	using byte = std::bitset<8>;
 
+}
 //Section Headers
 const std::vector<std::string> HEADERS = {  "TYPE", "VER ", "DESC", "OWNR", "ERA ", "ERAX", "DIM ", "UDTA", "ALOW", "UGRD", "SIDE",
 											"SGLD", "SLBR", "SOIL", "AIPL", "MTXM", "SQM ", "OILM", "REGM", "UNIT" };
@@ -52,7 +54,7 @@ enum UNIT { INFANTRY = 0x00,		GRUNT = 0x01,				PEASANT = 0x02,			PEON = 0x03,			
 			O_GUARD_TOWER = 0x61,	H_CANNON_TOWER = 0x62,		O_CANNON_TOWER = 0x63,	CIRCLE_POWER = 0x64,	PORTAL = 0x65,
 			RUNESTONE = 0x66,		H_WALL = 0x67,				O_WALL = 0x68,			NONE_UNIT };
 
-const static std::vector<word> units =
+const static std::vector<pud::word> units =
 {	INFANTRY, GRUNT, PEASANT, PEON, BALLISTA, CATAPULT,	KNIGHT, OGRE, ARCHER, AXETHROWER, MAGE,	DEATHKNIGHT, PALADIN, OGREMAGE,
 	DWARVES, SAPPER, ATTK_PEASANT, ATTK_PEON, RANGER, BERSERKER, ALLERIA, TERON, KURDAN, DENTARG, KHADGAR, GROM, H_TANKER, O_TANKER,
 	H_TRANSPORT, O_TRANSPORT, H_DESTROYER, O_DESTROYER,	BATTLESHIP,	JUGGERNAUGHT, DEATHWING, SUBMARINE,	TURTLE,	FLYING_MACHINE,	ZEPPLIN,

@@ -47,16 +47,16 @@ void printHex(const T arr[], const int& start, const int& end){
 }
 
 struct Type {
-	Array<byte, 2> mapNum; // 'WAR2 MAP' + 00 00
-	Array<byte, 2> unused; //Set to $0a and $ff by editor
-	Array<byte, 4> tag; //Checked for consistency in multiplayer
+	Array<pud::byte, 2> mapNum; // 'WAR2 MAP' + 00 00
+	Array<pud::byte, 2> unused; //Set to $0a and $ff by editor
+	Array<pud::byte, 4> tag; //Checked for consistency in multiplayer
 };
 
 using ActionMap = std::vector<std::vector<SQM>>;
 using TileMap = std::vector<std::vector<MTXM>>;
 
 struct Map {
-	word x, y;
+	pud::word x, y;
 	ActionMap actionMap;
 	TileMap tilesMap;
 
@@ -64,38 +64,38 @@ struct Map {
 
 struct Player {
 	OWNR owner;
-	word sGold, sWood, sOil;
+	pud::word sGold, sWood, sOil;
 	AIPL ai;
 	SIDE race;
-	int4 startSpells;
-	int4 allowedUnitBld, allowedSpells, allowedUpgrd;
-	int4 currSpellUpgrd, currUpgrd;
+	pud::int4 startSpells;
+	pud::int4 allowedUnitBld, allowedSpells, allowedUpgrd;
+	pud::int4 currSpellUpgrd, currUpgrd;
 };
 
 struct Upgrade {
-	byte upgrdTime;
-	word gldCost, lumbrCost, oilCost;
-	word upgrdIcon;
-	word group;
-	int4 affectFlags; //What does the upgrade give
+	pud::byte upgrdTime;
+	pud::word gldCost, lumbrCost, oilCost;
+	pud::word upgrdIcon;
+	pud::word group;
+	pud::int4 affectFlags; //What does the upgrade give
 };
 
 struct Unit {
 	MISSILE missle;
 	UNIT_TYPE type;
 	SECOND_ACTION secondAction; //Only first 58 units, anything may cause crash
-	int4 unitSize,
+	pud::int4 unitSize,
 		 boxSize,//X then Y;
 		 sight;
 
-	word overlapFrames,
+	pud::word overlapFrames,
 		 hp,
 		 pntVal, // Points for killing unit
 		 xCoord,
 		 yCoord,
 		 capacity; // if gold mine/oil well contain 2500 * this, otherwise 0 passive 1 active
 
-	byte bldTime,
+	pud::byte bldTime,
 		atkRange,
 		reactRangeCmp,
 		reactRangePlyr,
@@ -109,7 +109,7 @@ struct Unit {
 
 
 	////////////Special Cases/////////
-	int4 flags;
+	pud::int4 flags;
 	/// \brief flags
 	/// bit 0: Land unit
 	/// bit 1: Air unit
@@ -146,14 +146,14 @@ struct Unit {
 	/// bit31: not used
 	///
 
-	byte gldCost, // 1/10 gold cost
+	pud::byte gldCost, // 1/10 gold cost
 		lumbrCost, // ^
 		oilCost, // ^
 		decayRate, // dies in rate * 6 sec, 0 for never decays
 		canTarget; // 1: land, 2: sea, 4: air, OR together
 
 	//Booleans
-	byte magic,//0 or 1
+	pud::byte magic,//0 or 1
 		selectable, //0 or 1
 		weaponsUpgradable,
 		armorUpgradable;
@@ -170,7 +170,7 @@ struct fileSection{
 		size = 0;
 };
 
-using oilConcentrationMap = std::vector<std::vector<word>>;
+using oilConcentrationMap = std::vector<std::vector<pud::word>>;
 
 struct PUD
 {
@@ -184,12 +184,12 @@ struct PUD
 
 	//Members///
 	Array<Player, 16> _players;
-	word _terrain;
+	pud::word _terrain;
 	VER_ _ver;
 	std::string _desc[32];
 	std::string _file;
-	Array<word*, 508> udtaUnused;
-	Array<word*, 127> udtaSwampFrames;
+	Array<pud::word*, 508> udtaUnused;
+	Array<pud::word*, 127> udtaSwampFrames;
 	oilConcentrationMap oilMap;
 
 	std::vector<fileSection> sections;
