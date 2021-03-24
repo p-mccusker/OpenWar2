@@ -2,11 +2,47 @@
 
 void findSectionHeaders(PUD& pud, const std::string& buffer) {
 	int startPos = 0;
-
+	std::string sect;
+	sect.resize(4);
+	int sectionLen = 0;
+	bool newSection = true;
 	for (int i = 0; i < buffer.size()-4; i++){
-		std::string currsect = std::string((char)buffer[0] + (char)buffer[1] + (char)buffer[2] + (char)buffer[3]);
-		if (contains(buffer[i+4]))
+		sect[0] = buffer[i];
+		sect[1] = buffer[i + 1];
+		sect[2] = buffer[i + 2];
+		sect[3] = buffer[i + 3];
+
+		for (auto& header : HEADERS) {
+			if (sect == header) {
+				fileSection section;
+				section.title = sect;
+				section.startPos = i + 4;
+				newSection = true;
+
+				if (pud.sections.size() > 0) {
+					//Get reference to last entered section and retroactivley add endPos and start
+					auto& lastSection = pud.sections[pud.sections.size()-1];
+					lastSection.endPos = i - 1;
+					lastSection.size = lastSection.endPos - lastSection.startPos;
+				}
+				pud.sections.push_back(section);
+				
+			}
+		}
+
+		if (newSection) {
+			sectionLen = 0;
+			newSection = false;
+		}
+		else
+			sectionLen++;
+		
+
 	}
+	//Get reference to last entered section and retroactivley add endPos and start
+	auto& lastSection = pud.sections[pud.sections.size() - 1];
+	lastSection.endPos =  buffer.size()-1;
+	lastSection.size = lastSection.endPos - lastSection.startPos;
 }
 
 PUD::PUD()
@@ -17,13 +53,11 @@ PUD::PUD()
 PUD::PUD(const std::string& file)
 {
 	_file = file;
-
-
-
 }
 
 PUD::~PUD()
 {
+
 }
 
 void PUD::Load()
@@ -41,7 +75,25 @@ void PUD::Load()
 	std::string buffer(fileLen, 0);
 	pudFile.read(&buffer[0], fileLen);
 
-	std::cout << buffer.size();
+	std::cout << buffer.size() << std::endl;
+
+	findSectionHeaders(*this, buffer); //Bugged
+
+	for (auto section : sections) {
+		std::cout << "\nSection : " << section.title << '\n'
+			<< "Start Position: " << section.startPos << '\n'
+			<< "End Position: " << section.endPos << '\n'
+			<< "Size: " << section.size << '\n';
+	}
+
+	int cnt = 0;
+	for (auto& ch : buffer) {
+		std::cout << (unsigned char)ch;
+
+		cnt++;
+		if (cnt % 24 == 0)
+			std::cout << '\n';
+	}
 
 
 }

@@ -208,7 +208,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	PUD reader("/home/peter/Games/warcraft_2/alamo.pud");
+	PUD reader("data/puds/MULTI/SIEGE.pud");
 	reader.Load();
 
 	return 0;
