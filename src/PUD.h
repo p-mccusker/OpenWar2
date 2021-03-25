@@ -21,7 +21,7 @@ bool contains(const S& item, const T& container){
 }
 
 template <typename T>
-void readFromArray(const T& src, int &startPos, T& dest, const int& cnt){
+void readFromArray(std::vector<pud::byte>& src, int &startPos, T& dest, const int& cnt){
 	for (int i = 0; i < cnt; i++){
 		dest[i] = src[startPos + i];
 	}
@@ -29,7 +29,7 @@ void readFromArray(const T& src, int &startPos, T& dest, const int& cnt){
 }
 
 template <typename T>
-void bytesToType(std::string& buffer, int &startPos, T& dest){
+void bytesToType(std::vector<pud::byte>& buffer, int &startPos, T& dest){
 	dest = *(T*)&buffer[startPos];
 	startPos += sizeof(T);
 }
@@ -83,12 +83,13 @@ struct Upgrade {
 struct Unit {
 	MISSILE missle;
 	UNIT_TYPE type;
+	UNIT kind;
 	SECOND_ACTION secondAction; //Only first 58 units, anything may cause crash
 	pud::int4 unitSize,
 		 boxSize,//X then Y;
 		 sight;
 
-	pud::word overlapFrames,
+	pud::word overlapFrame,
 		 hp,
 		 pntVal, // Points for killing unit
 		 xCoord,
@@ -168,6 +169,7 @@ struct fileSection{
 	int startPos = 0,
 		endPos = 0,
 		size = 0;
+	std::vector<pud::byte> data;
 };
 
 using oilConcentrationMap = std::vector<std::vector<pud::word>>;
@@ -179,19 +181,22 @@ struct PUD
 	~PUD();
 
 	void Load();
-	void Save();
+	void Save(const std::string& outFile);
 
 
 	//Members///
-	Array<Player, 16> _players;
-	pud::word _terrain;
-	VER_ _ver;
-	std::string _desc[32];
-	std::string _file;
-	Array<pud::word*, 508> udtaUnused;
-	Array<pud::word*, 127> udtaSwampFrames;
-	oilConcentrationMap oilMap;
-
+	Array<Player, 16> players;
+	ERA_ terrain;
+	VER_ ver;
+	pud::word defaultUnitData;
+	std::string desc;
+	std::string file;
+	Array<pud::word, 508> udtaUnused;
+	Array<pud::word, 127> udtaSwampFrames;
+	Array<Unit, 110> unitData;
+	oilConcentrationMap oilConc;
+	Type mapType;
+	Map map;
 	std::vector<fileSection> sections;
 	//////////
 };

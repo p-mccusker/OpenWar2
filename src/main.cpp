@@ -1,6 +1,6 @@
 #include "PUD.h"
 
-const std::string UnitName(const int& unit) {
+const std::string UnitName(const UNIT& unit) {
 	switch(unit){
 		case INFANTRY:
 			return "Infantry";

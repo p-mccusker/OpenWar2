@@ -12,7 +12,7 @@
 namespace pud {
 	using int4 = std::bitset<32>;
 	using word = std::bitset<16>;
-	using byte = std::bitset<8>;
+	using byte = unsigned char;
 
 }
 //Section Headers
