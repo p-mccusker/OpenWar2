@@ -6,12 +6,12 @@
 #include <vector>
 #include <bitset>
 #include <iomanip>
-#include "Array.h"
+#include <array>
 
 //using u_byte = unsigned char;
 namespace pud {
-	using int4 = std::bitset<32>;
-	using word = std::bitset<16>;
+	using int4 = int;
+	using word = short;
 	using byte = unsigned char;
 
 }

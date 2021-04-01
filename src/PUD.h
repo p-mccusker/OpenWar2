@@ -1,6 +1,6 @@
 #ifndef _PUD_H
 #define _PUD_H
-#pragma once
+
 #include "def.h"
 
 /*
@@ -29,7 +29,7 @@ void readFromArray(std::vector<pud::byte>& src, int &startPos, T& dest, const in
 }
 
 template <typename T>
-void bytesToType(std::vector<pud::byte>& buffer, int &startPos, T& dest){
+void bytesToType(pud::byte *buffer, int &startPos, T& dest){
 	dest = *(T*)&buffer[startPos];
 	startPos += sizeof(T);
 }
@@ -47,32 +47,49 @@ void printHex(const T arr[], const int& start, const int& end){
 }
 
 struct Type {
-	Array<pud::byte, 2> mapNum; // 'WAR2 MAP' + 00 00
-	Array<pud::byte, 2> unused; //Set to $0a and $ff by editor
-	Array<pud::byte, 4> tag; //Checked for consistency in multiplayer
+	std::array<pud::byte, 2> mapNum; // 'WAR2 MAP' + 00 00
+	std::array<pud::byte, 2> unused; //Set to $0a and $ff by editor
+	std::array<pud::byte, 4> tag; //Checked for consistency in multiplayer
 };
 
-using ActionMap = std::vector<std::vector<SQM>>;
-using TileMap = std::vector<std::vector<MTXM>>;
+
+
+using ActionMap = std::vector<pud::word>;
+using TileMap = std::vector<pud::word>;
+
+
 
 struct Map {
 	pud::word x, y;
 	ActionMap actionMap;
 	TileMap tilesMap;
+	bool standardSize;
+};
 
+void isMapStdSize(Map& map);
+
+struct allowed {
+	pud::int4 allowedUnitBld,
+		startSpells,
+		allowedSpells,
+		currSpellsUpgrading,
+		allowedUpgrade,
+		currUpgrading;
 };
 
 struct Player {
-	OWNR owner;
+	using owner = pud::byte;
+	using side = pud::byte;
+	using aipl = pud::byte;
+	owner ownr;
 	pud::word sGold, sWood, sOil;
-	AIPL ai;
-	SIDE race;
-	pud::int4 startSpells;
-	pud::int4 allowedUnitBld, allowedSpells, allowedUpgrd;
-	pud::int4 currSpellUpgrd, currUpgrd;
+	aipl ai;
+	side race;
+	allowed techTree;
 };
 
 struct Upgrade {
+
 	pud::byte upgrdTime;
 	pud::word gldCost, lumbrCost, oilCost;
 	pud::word upgrdIcon;
@@ -81,10 +98,15 @@ struct Upgrade {
 };
 
 struct Unit {
-	MISSILE missle;
-	UNIT_TYPE type;
-	UNIT kind;
-	SECOND_ACTION secondAction; //Only first 58 units, anything may cause crash
+	using missile = pud::byte;
+	using unit_type = pud::byte;
+	using second_action = pud::byte;
+	using unit = pud::word;
+	std::string name;
+	missile missle;
+	unit_type type;
+	unit kind;
+	second_action secondAction; //Only first 58 units, anything may cause crash
 	pud::int4 unitSize,
 		 boxSize,//X then Y;
 		 sight;
@@ -172,32 +194,43 @@ struct fileSection{
 	std::vector<pud::byte> data;
 };
 
-using oilConcentrationMap = std::vector<std::vector<pud::word>>;
+using oilConcentrationMap = std::vector<pud::word>;
 
 struct PUD
 {
 	PUD();
-	PUD(const std::string& file);
+	PUD(const std::string& file, uint64_t addr = NULL);
 	~PUD();
 
 	void Load();
 	void Save(const std::string& outFile);
 
+	using era_ = pud::word;
+	using ver_ = pud::word;
 
 	//Members///
-	Array<Player, 16> players;
-	ERA_ terrain;
-	VER_ ver;
-	pud::word defaultUnitData;
+	std::array<Player, 16> players;
+	std::array<pud::word, 508> udtaUnused;
+	std::array<pud::word, 127> udtaSwampFrames;
+	std::array<Unit, 110> unitData;
+	std::array<Upgrade, 52> upgrades;
+
+	std::vector<Unit> currentUnits;
+	std::vector<fileSection> sections;
+	oilConcentrationMap oilConcentration;
+
 	std::string desc;
 	std::string file;
-	Array<pud::word, 508> udtaUnused;
-	Array<pud::word, 127> udtaSwampFrames;
-	Array<Unit, 110> unitData;
-	oilConcentrationMap oilConc;
+
 	Type mapType;
 	Map map;
-	std::vector<fileSection> sections;
+	
+	uint64_t startAddr;
+
+	era_ terrain;
+	ver_ ver;
+	pud::word defaultUnitData;
+	pud::word defaultUpgradeData;
 	//////////
 };
 

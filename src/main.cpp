@@ -208,7 +208,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	PUD reader("/home/peter/Dev/OpenWar2/data/puds/MULTI/SIEGE.PUD");
+	PUD reader("data/gamedat/MAINDAT.WAR", 0x253008);
 	reader.Load();
 
 	return 0;
