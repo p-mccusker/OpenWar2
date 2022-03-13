@@ -1,13 +1,12 @@
 #include "PUD.h"
 
-const std::string UnitName(const UNIT& unit);
-
 void findSectionHeaders(PUD& pud, const char* buffer, const int& len) {
 	std::string sect;
 	sect.resize(4);
 	int sectionLen = 0;
 	bool newSection = true;
-	for (auto i = pud.startAddr; i < len-4; i++){
+	//
+	for (auto i = pud.startAddr; i <= len-4; i++){
 		sect[0] = buffer[i];
 		sect[1] = buffer[i + 1];
 		sect[2] = buffer[i + 2];
@@ -18,12 +17,14 @@ void findSectionHeaders(PUD& pud, const char* buffer, const int& len) {
 				fileSection section;
 				section.title = sect;
 				section.startPos = i + 4 ; //Begins w/ 4 bytes descrbing the size of the section
-				section.endPos = (section.startPos) + *(int*)&buffer[i + 4]; //End pos: start of size byte + sectionSize
+				section.endPos = section.startPos + *(int*)&buffer[i + 4]; //End pos: start of size byte + sectionSize
+				section.size = section.endPos - section.startPos;
 
 				newSection = true;
 				std::cout << "Found: " << sect << '\n';
 				std::cout << "Start Pos:" << section.startPos << '\n';
 				std::cout << "End Pos:" << section.endPos << '\n';
+				//std::cout << "Size: " << section.endPos - section.startPos << '\n';
 
 				if (pud.sections.size() > 0) {
 					//Get reference to last entered section and retroactivley add endPos
@@ -33,20 +34,16 @@ void findSectionHeaders(PUD& pud, const char* buffer, const int& len) {
 					//lastSection.size = lastSection.endPos - lastSection.startPos;
 				}
 				
-				if (sect == "UNIT") { //Last section, get length know when to stop
-					
-					pud.sections.push_back(section);
-					return;
-				}
 				pud.sections.push_back(section);
+				if (sect == "UNIT")  //Last section, get length to know when to stop
+					return;
 			}
 		}
 	}
 	//Get reference to last entered section and retroactivley add endPos and start
-	auto& lastSection = pud.sections[pud.sections.size() - 1];
-	lastSection.endPos = len-1;
+	//auto lastSection = pud.sections.end() - 1;
+	//lastSection->endPos = len-1;
 	//lastSection.size = lastSection.endPos - lastSection.startPos;
-
 
 }
 
@@ -82,13 +79,13 @@ void toByte(pud::byte *buffer, int& startPos, pud::byte& dest) {
 	startPos += sizeof(pud::byte);
 }
 
-void toWord(std::vector<pud::byte>& buffer, int& startPos, pud::word& dest) {
-	dest = (pud::word)&buffer[startPos];
+void toWord(pud::byte *buffer, int& startPos, pud::word& dest) {
+	dest = static_cast<pud::word>(buffer[startPos]);
 	startPos += sizeof(pud::word);
 }
 
-void toInt(std::vector<pud::byte>& buffer, int& startPos, pud::int4& dest) {
-	dest = (pud::int4)&buffer[startPos];
+void toInt(pud::byte* buffer, int& startPos, pud::int4& dest) {
+	dest = static_cast<pud::int4>(buffer[startPos]);
 	startPos += sizeof(pud::int4);
 }
 
@@ -172,9 +169,9 @@ void PUD::Load()
 	////TYPE//////
 	currSection = Get(sections, "TYPE");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << currSection.title << ": " << sectionLen;
+	std::cout  << "\n[Sections]\n" << currSection.title << ": " << sectionLen << " bytes\n";
 	std::string name(8, 0);
-	readFromArray(currSection.data, sectionPos, name, name.size());
+	readFromArray(currSection.data.data(), sectionPos, name, name.size());
 	bytesToType(currSection.data.data(), sectionPos, mapType.mapNum[0]);
 	bytesToType(currSection.data.data(), sectionPos, mapType.mapNum[1]);
 
@@ -191,7 +188,7 @@ void PUD::Load()
 	sectionPos = 0;
 	currSection = Get(sections, "VER ");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << '\n' << currSection.title << ": " << sectionLen << '\n';
+	std::cout << currSection.title << ": " << sectionLen << " bytes\n";
 	bytesToType(currSection.data.data(), sectionPos, ver);
 	//////////////
 
@@ -199,16 +196,16 @@ void PUD::Load()
 	sectionPos = 0;
 	currSection = Get(sections, "DESC");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << currSection.title << ": " << sectionLen << '\n';
+	std::cout << currSection.title << ": " << sectionLen << " bytes\n";
 	desc.resize(32);
-	readFromArray(currSection.data, sectionPos, desc, desc.size());
+	readFromArray(currSection.data.data(), sectionPos, desc, desc.size());
 	///////////////
 
 	/////OWRN//////
 	sectionPos = 0;
 	currSection = Get(sections, "OWNR");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << currSection.title << ": " << sectionLen << '\n';
+	std::cout << currSection.title << ": " << sectionLen << " bytes\n";
 
 	for (int i = 0; i < 16; i++) {
 		Player player;
@@ -222,7 +219,7 @@ void PUD::Load()
 	sectionPos = 0;
 	currSection = Get(sections, "ERA ");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << currSection.title << ": " << sectionLen << '\n';
+	std::cout << currSection.title << ": " << sectionLen << " bytes\n";
 	bytesToType(currSection.data.data(), sectionPos, terrain);
 	//////////////
 
@@ -231,7 +228,7 @@ void PUD::Load()
 	//currSection = Get(sections, "ERAX"); // Broke
 	if (currSection.title == "ERAX") { // May not exist
 		bytesToType(currSection.data.data(), sectionPos, sectionLen);
-		std::cout << currSection.title << ": " << sectionLen << '\n';
+		std::cout << currSection.title << ": " << sectionLen << " bytes\n";
 		bytesToType(currSection.data.data(), sectionPos, terrain); // If preset in v1.33+, it will be used instead of ERA
 	}
 	//////////////
@@ -240,7 +237,7 @@ void PUD::Load()
 	sectionPos = 0;
 	currSection = Get(sections, "DIM ");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << currSection.title << ": " << sectionLen << '\n';
+	std::cout << currSection.title << ": " << sectionLen << " bytes\n";
 	//printHexVec(currSection.data, 0, currSection.size - 1);
 	bytesToType(currSection.data.data(), sectionPos, map.x);
 	std::cout << "pos: " << sectionPos << '\n';
@@ -248,196 +245,7 @@ void PUD::Load()
 	//////////////
 
 	/////UDTA//////
-	sectionPos = 0;
-	currSection = Get(sections, "UDTA");
-	bytesToType(currSection.data.data(), sectionPos, sectionLen);
-	std::cout << currSection.title << ": " << sectionLen << '\n';
-	bytesToType(currSection.data.data(), sectionPos, defaultUnitData);
-	int NUM_UNITS = unitData.size();
-
-	/*
-	for(int i = 0; i < udtaUnused.capacity(); i++){
-		bytesToType(currSection.data, sectionPos, udtaUnused[i]);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].sight);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].hp);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].gldCost);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].lumbrCost);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].oilCost);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].unitSize);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].boxSize);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].atkRange);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].reactRangeCmp);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].reactRangePlyr);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].armor);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].selectable);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].priority);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].dmg_basic);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].dmg_piercing);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].weaponsUpgradable);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].armorUpgradable);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].missle);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].type);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].decayRate);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].cmpAnnoyFactor);
-	}
-	for(int i = 0; i < 58; i++){ // Only first 58
-		bytesToType(currSection.data, sectionPos, unitData[i].secondAction);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].pntVal);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].canTarget);
-	}
-	for(int i = 0; i < unitData.count(); i++){
-		bytesToType(currSection.data, sectionPos, unitData[i].flags);
-	}
-	for(int i = 0; i < udtaSwampFrames.capacity(); i++){
-		bytesToType(currSection.data, sectionPos, udtaSwampFrames[i]);
-	}
-	std::cout << "End pos: " << sectionPos << '\n';
-
-	for (auto &unit : unitData){
-		std::cout <<  unit.type << '\n';
-	}*/
-
-	for (int i = 0; i < NUM_UNITS; i++) {
-		Unit newUnit;
-		bytesToType(currSection.data.data(), sectionPos, newUnit.overlapFrame);
-		unitData[i] = newUnit;
-	}
-
-	for (int i = 0; i < udtaUnused.size(); i++) {
-		bytesToType(currSection.data.data(), sectionPos, udtaUnused[i]);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].sight);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].hp);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].gldCost);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].lumbrCost);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].oilCost);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].unitSize);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].boxSize);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].atkRange);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].reactRangeCmp);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].reactRangePlyr);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].armor);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].selectable);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].priority);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].dmg_basic);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].dmg_piercing);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].weaponsUpgradable);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].armorUpgradable);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].missle);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].type);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].decayRate);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].cmpAnnoyFactor);
-	}
-	for (int i = 0; i < 58; i++) { // Only first 58
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].secondAction);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].pntVal);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].canTarget);
-	}
-	for (int i = 0; i < NUM_UNITS; i++) {
-		bytesToType(currSection.data.data(), sectionPos, unitData[i].flags);
-	}
-	if (file == "data/gamedat/MAINDAT.WAR dfaf") {
-		for (int i = 0; i < udtaSwampFrames.size(); i++) {
-			bytesToType(currSection.data.data(), sectionPos, udtaSwampFrames[i]);
-		}
-	}
-
-	for (int i = 0; i < units.size(); i++) {
-		auto& unit = unitData[units[i]];
-		unit.kind = units[i];
-		unit.name = UnitName((UNIT)unit.kind);
-	}
+	loadUDTA();
 
 	//////////////
 
@@ -578,12 +386,124 @@ void PUD::Load()
 	///////////////
 
 	/////UNIT//////
-	sectionPos = 0;
-	currSection = Get(sections, "UNIT");
+	loadUNIT();
+	///////////////
+}
+
+void PUD::loadUDTA() {
+	int sectionPos = 0,
+		sectionLen = 0;
+	fileSection currSection = Get(sections, "UDTA");
+	bytesToType(currSection.data.data(), sectionPos, sectionLen);
+	std::cout << currSection.title << ": " << sectionLen << " bytes\n";
+	bytesToType(currSection.data.data(), sectionPos, defaultUnitData);
+	int NUM_UNITS = unitData.size();
+
+	for (int i = 0; i < NUM_UNITS; i++) {
+		Unit newUnit;
+		bytesToType(currSection.data.data(), sectionPos, newUnit.overlapFrame);
+		unitData[i] = newUnit;
+	}
+	for (int i = 0; i < udtaUnused.size(); i++) {
+		bytesToType(currSection.data.data(), sectionPos, udtaUnused[i]);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].sight);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].hp);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].gldCost);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].lumbrCost);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].oilCost);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].unitSize);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].boxSize);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].atkRange);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].reactRangeCmp);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].reactRangePlyr);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].armor);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].selectable);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].priority);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].dmg_basic);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].dmg_piercing);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].weaponsUpgradable);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].armorUpgradable);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].missle);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].type);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].decayRate);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].cmpAnnoyFactor);
+	}
+	for (int i = 0; i < 58; i++) { // Only first 58
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].secondAction);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].pntVal);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].canTarget);
+	}
+	for (int i = 0; i < NUM_UNITS; i++) {
+		bytesToType(currSection.data.data(), sectionPos, unitData[i].flags);
+	}
+	if (file == "data/gamedat/MAINDAT.WAR") {
+		for (int i = 0; i < udtaSwampFrames.size(); i++) {
+			bytesToType(currSection.data.data(), sectionPos, udtaSwampFrames[i]);
+		}
+	}
+
+	for (int i = 0; i < units.size(); i++) {
+		auto& unit = unitData[units[i]];
+		unit.kind = units[i];
+		unit.name = UnitName(static_cast<UNIT>(unit.kind));
+	}
+}
+
+void PUD::loadUNIT() {
+	int sectionPos = 0,
+		sectionLen = 0;
+	fileSection currSection = Get(sections, "UNIT");
 	bytesToType(currSection.data.data(), sectionPos, sectionLen);
 	std::cout << currSection.title << ": " << sectionLen << '\n';
 
-	for (int i = 0; i < sectionLen / 8 * sizeof(pud::byte); i++) {
+	const int unitByteCount = 8; // word + word + byte + byte + word
+	for (int i = 0; i < sectionLen / unitByteCount; i++) {
 		pud::word x, y, gldOilOther;
 		pud::byte kind, owner;
 
@@ -607,10 +527,11 @@ void PUD::Load()
 		currentUnits.push_back(newUnit);
 	}
 
+	std::cout << "\n[Entities]\n";
+	std::cout << "Total Entities: " << currentUnits.size() << '\n';
 	for (auto& unit : currentUnits) {
 		std::cout << UnitName((UNIT)unit.kind) << '\n';
 	}
-	///////////////
 }
 
 void PUD::Save(const std::string& outFile)

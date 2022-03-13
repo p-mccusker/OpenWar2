@@ -1,0 +1,12 @@
+aidefs.inc   ... include file for AI compiler
+AIEd.ini     ... initialization file for AI editor
+Ed278.ini    ... initialization file for speed editor
+file_id.diz  ... short description
+filelist.txt ... this file
+war12.knw    ... knowledge base for WarCraft2 version 1.2
+war131.knw   ... knowledge base for WarCraft2 version 1.31 and above
+WarDraft.cnt ... help contents
+WarDraft.exe ... main program
+WarDraft.hlp ... online help
+WCM.EXE      ... Campaign Maker
+

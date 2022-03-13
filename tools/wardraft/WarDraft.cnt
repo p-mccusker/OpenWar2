@@ -1,0 +1,27 @@
+:Base WarDraft.hlp
+:Title WarDraft Help Topics
+1 Table of contents=IDH_WarDraft
+1 What's new ?=WhatsNew
+1 Overview
+2 About WarDraft and WAR archives=WAR archives
+2 Knowledge bases=Knowledge bases
+2 How to use WarDraft=How to use
+2 Displayed info about entries=Entries
+1 Command overview
+2 File menu=IDH_File menu
+2 Edit menu=IDH_Edit menu
+2 Options menu=IDH_Options menu
+2 Tools menu=IDH_Tools menu
+1 Tools
+2 Artificial Intelligence Editor=IDH_AIEd
+2 Text Editor=IDH_Text Editor
+2 Terrain Editor=IDH_TerrainEditor
+2 Graphics converter=IDH_GfxConv
+2 Speed editor=IDH_Ed278
+2 Campaign Builder=IDH_Campaigns
+1 Appendices
+2 WAR file format=WAR file format
+2 Knowledge Base format=Knowledge Base format
+2 Known Bugs=Known Bugs
+2 To do=ToDo
+2 History=History
